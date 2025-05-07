@@ -1,0 +1,46 @@
+# This is a Databricks asset bundle definition for default-sql-asset-bundle.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: default-sql-asset-bundle
+  uuid: 239d9ecb-6701-47b4-bad2-c6cad958f818
+
+include:
+  - resources/*.yml
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  warehouse_id:
+    description: The warehouse to use
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The schema to use
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://e2-dogfood.staging.cloud.databricks.com
+    variables:
+      warehouse_id: 864004c1b3961382
+      catalog: mudit_mittal
+      schema: default
+
+  prod:
+    mode: production
+    workspace:
+      host: https://e2-dogfood.staging.cloud.databricks.com
+      # We explicitly deploy to /Workspace/Users/mudit.mittal@databricks.com to make sure we only have a single copy.
+      root_path: /Workspace/Users/mudit.mittal@databricks.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      warehouse_id: abcdef1234567890
+      catalog: main
+      schema: default
+    permissions:
+      - user_name: mudit.mittal@databricks.com
+        level: CAN_MANAGE
